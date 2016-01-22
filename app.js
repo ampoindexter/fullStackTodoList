@@ -15,7 +15,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-
 app.get('/', function(req, res) {
   var html = fs.readFileSync('./index.html').toString();
   res.send(html);
@@ -29,10 +28,31 @@ app.get('/todos', function(req, res) {
 
 app.post('/todos', function(req, res) {
   var newTodo = req.body;
+  newTodo.isComplete = false;
   retrieveTodos(function(todos) {
     todos.push(newTodo);
     writeTodos(todos, function(err) {
-      res.send();
+      res.send(todos);
+    });
+  });
+});
+
+app.delete('/todos/:index', function(req, res) {
+  var index = req.params.index;
+  retrieveTodos(function(todos) {
+    todos.splice(index, 1);
+    writeTodos(todos, function(err) {
+      res.send(todos);
+    });
+  });
+});
+
+app.put('/todos/:index', function(req, res) {
+  var index = req.params.index;
+  retrieveTodos(function(todos) {
+    todos[index].isComplete = !todos[index].isComplete;
+    writeTodos(todos, function(err) {
+      res.send(todos);
     });
   });
 });
